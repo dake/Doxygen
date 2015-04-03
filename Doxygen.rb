@@ -72,7 +72,7 @@ module Duckrowing
     def start_comment(description = 'Description')
       #str = "/**\n"
       str = "#{@indent}/**\n"
-      str += "#{@indent} *\t@brief\t<##{description}#>\n"
+      str += "#{@indent} @brief\t<##{description}#>\n"
       str      
     end
     
@@ -80,16 +80,16 @@ module Duckrowing
 	  str = ''
       @arguments.each do |arg|
 		if str == '' 
-			str += "#{@indent} *\n"
+			str += "#{@indent} \n"
 		end
-        str += "#{@indent} *\t@param \t#{arg.name} [IN|OUT] \t<##{arg.name} description#>\n"
+        str += "#{@indent} @param #{arg.name} [IN|OUT] <##{arg.name} description#>\n"
       end
       str
     end
     
     def return_comment
       return '' if !@returns
-      "#{@indent} *\n#{@indent} *\t@return\t<#return value description#>\n"
+      "#{@indent} \n#{@indent} @return <#return value description#>\n"
     end
 
     # Creates closing comment
@@ -109,7 +109,7 @@ module Duckrowing
       matches = list.scan(/\@p\S*/)
       if matches.size > 0
         # class contains @protected @private @public
-        list.insert(matches[0].to_s.length+1, "\t")
+        list.insert(matches[0][0].to_s.length+1, "\t")
       end
 
       # 获取类型标识符
@@ -187,7 +187,7 @@ module Duckrowing
       # Add PBX selection to first field
       matches = str.scan(/\<\#.*\#\>/)
       if matches.size > 0
-        first_field = matches[0].to_s
+        first_field = matches[0][0].to_s
         # str.gsub!(/#{first_field}/, "%%%{PBXSelection}%%%#{first_field}%%%{PBXSelection}%%%")
         str.gsub!(/#{first_field}/, "#{first_field}")
       end
@@ -291,7 +291,7 @@ module Duckrowing
     # Parse out args for inclusion in comment
     def capture_args
       matches = @code.scan(/\(([^\(\)]*)\)/)
-      parse_c_style_argument_list(matches[0].to_s)
+      parse_c_style_argument_list(matches[0][0].to_s)
       @returns = true
     end
 
@@ -334,7 +334,7 @@ module Duckrowing
       matches = @code.scan(block_match)
       return if matches.size != 1
       
-      block = matches[0].to_s
+      block = matches[0][0].to_s
       @code.gsub!(block_match, "{\n#{comment_list(block, "\t")}\n#{@indent}}")
     end
     
@@ -367,7 +367,7 @@ module Duckrowing
       matches = @code.scan(block_match)
       return if matches.size != 1
       
-      block = matches[0].to_s
+      block = matches[0][0].to_s
       @code.gsub!(block_match, "{\n#{comment_struct_list(block)}#{@indent}}")
     end
     
@@ -382,7 +382,7 @@ module Duckrowing
     # Parse out args for inclusion in comment
     def capture_args
       matches = @code.scan(/\((.*)\)/)
-      parse_c_style_argument_list(matches[0].to_s)
+      parse_c_style_argument_list(matches[0][0].to_s)
       # parse_c_style_argument_list(@code)
     end
     
@@ -407,8 +407,7 @@ module Duckrowing
     def capture_return_type
       matches = @code.scan(/^\s*[+-]\s*\(([^\(\)]*)\)/)
       return nil if matches.size != 1
-      type = matches[0].to_s.gsub(TAILMATCH, '')
-
+      type = matches[0][0].to_s.gsub(TAILMATCH, '')
       if type == 'void' || type == 'IBAction'
         @returns = nil
       else
@@ -524,7 +523,7 @@ module Duckrowing
     def base_indentation(code)
       matches = code.scan(/^(\s*)/)
       return '' if matches.size == 0
-      matches[0].to_s
+      matches[0][0].to_s
     end
   end
 end
